@@ -9,9 +9,15 @@ class ApiClient {
     : _dio = Dio(
         BaseOptions(
           baseUrl: AppConstants.baseUrl,
-          // connectTimeout: const Duration(seconds: 30),
-          // receiveTimeout: const Duration(seconds: 30),
-          headers: {"Content-Type": "application/json"},
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Cache-Control": "no-cache",
+          },
         ),
       ) {
     _dio.interceptors.add(
