@@ -6,20 +6,25 @@ class ApiClient {
   final Dio _dio;
 
   ApiClient()
-      : _dio = Dio(
-          BaseOptions(
-            baseUrl: AppConstants.baseUrl,
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 10),
-            queryParameters: {
-              'api_key': AppConstants.apiKey,
-            },
-          ),
-        ) {
-    _dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-    ));
+    : _dio = Dio(
+        BaseOptions(
+          baseUrl: AppConstants.baseUrl,
+          // connectTimeout: const Duration(seconds: 30),
+          // receiveTimeout: const Duration(seconds: 30),
+          headers: {"Content-Type": "application/json"},
+        ),
+      ) {
+    _dio.interceptors.add(
+      LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        requestHeader: true,
+        responseHeader: true,
+        error: true,
+        logPrint: (data) => print(data),
+        request: true,
+      ),
+    );
   }
 
   Dio get dio => _dio;

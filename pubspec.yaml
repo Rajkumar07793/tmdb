@@ -35,6 +35,7 @@ dependencies:
   # Navigation & Deep Linking
   go_router: ^14.2.1
   share_plus: ^7.2.2
+  fluttertoast: ^8.2.4
 
 dependency_overrides:
   code_builder: ^4.3.0

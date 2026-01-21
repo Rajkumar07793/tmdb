@@ -20,9 +20,9 @@ class _ApiService implements ApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<MovieResponse> getTrendingMovies() async {
+  Future<MovieResponse> getTrendingMovies(String apiKey) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'api_key': apiKey};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<MovieResponse>(
@@ -47,9 +47,9 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<MovieResponse> getNowPlayingMovies() async {
+  Future<MovieResponse> getNowPlayingMovies(String apiKey) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'api_key': apiKey};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<MovieResponse>(
@@ -74,9 +74,9 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<MovieModel> getMovieDetails(int id) async {
+  Future<MovieModel> getMovieDetails(int id, String apiKey) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'api_key': apiKey};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<MovieModel>(
@@ -101,9 +101,12 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<MovieResponse> searchMovies(String query) async {
+  Future<MovieResponse> searchMovies(String query, String apiKey) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'query': query};
+    final queryParameters = <String, dynamic>{
+      r'query': query,
+      r'api_key': apiKey,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<MovieResponse>(

@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import '../../core/database/app_database.dart';
+import '../../core/utils/constants.dart';
 import '../../domain/repositories/movie_repository.dart';
 import '../datasources/remote_datasource.dart';
 import '../models/movie_model.dart';
@@ -9,10 +13,21 @@ class MovieRepositoryImpl implements MovieRepository {
 
   MovieRepositoryImpl(this._apiService, this._database);
 
+  void _showErrorToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: const Color(0xFF323232),
+      textColor: const Color(0xFFFFFFFF),
+      fontSize: 14.0,
+    );
+  }
+
   @override
   Future<List<MovieModel>> getTrendingMovies() async {
     try {
-      final response = await _apiService.getTrendingMovies();
+      final response = await _apiService.getTrendingMovies(AppConstants.apiKey);
       final movies = response.results;
 
       // Cache in DB
@@ -27,6 +42,11 @@ class MovieRepositoryImpl implements MovieRepository {
 
       return movies;
     } catch (e) {
+      // Show error toast
+      _showErrorToast(
+        'Failed to fetch trending movies. Showing cached data. $e',
+      );
+
       // Fallback to local
       final localMovies = await _database.getTrendingMovies();
       return localMovies.map((m) => _mapToModel(m)).toList();
@@ -36,11 +56,18 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<List<MovieModel>> getNowPlayingMovies() async {
     try {
-      final response = await _apiService.getNowPlayingMovies();
+      final response = await _apiService.getNowPlayingMovies(
+        AppConstants.apiKey,
+      );
       final movies = response.results;
       await _database.insertBatch(movies, isNowPlaying: true);
       return movies;
     } catch (e) {
+      // Show error toast
+      _showErrorToast(
+        'Failed to fetch now playing movies. Showing cached data. $e',
+      );
+
       final localMovies = await _database.getNowPlayingMovies();
       return localMovies.map((m) => _mapToModel(m)).toList();
     }
@@ -53,7 +80,7 @@ class MovieRepositoryImpl implements MovieRepository {
     // Also "Store movies from the api in the local database".
     // Usually search results aren't cached indefinitely, but we can store them to show details offline.
 
-    final response = await _apiService.searchMovies(query);
+    final response = await _apiService.searchMovies(query, AppConstants.apiKey);
     return response.results;
   }
 
