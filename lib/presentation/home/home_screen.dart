@@ -1,11 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:go_router/go_router.dart';
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
 import '../../core/utils/constants.dart';
-import '../providers/movies_provider.dart';
 import '../../data/models/movie_model.dart';
+import '../providers/movies_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,9 +30,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TMDB Movies',
-            style: TextStyle(
-                color: Colors.redAccent, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'TMDB Movies',
+          style: TextStyle(
+            color: Colors.redAccent,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -39,6 +48,32 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final Connectivity connectivity = Connectivity();
+          final List<ConnectivityResult> result = await connectivity
+              .checkConnectivity();
+          log(result.toString());
+          try {
+            final response = await http
+                .get(
+                  Uri.parse('https://jsonplaceholder.typicode.com/todos/1'),
+                  headers: {'Accept': 'application/json'},
+                )
+                .timeout(const Duration(seconds: 10000));
+
+            if (response.statusCode == 200) {
+              log(response.body);
+            } else {
+              log('Error: ${response.statusCode}');
+            }
+          } catch (e) {
+            log('Exception: $e');
+          }
+        },
+        child: const Icon(Icons.search),
+      ),
+
       body: Consumer<MoviesProvider>(
         builder: (context, provider, child) {
           if (provider.isLoadingTrending && provider.trendingMovies.isEmpty) {
@@ -58,16 +93,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Text('Trending Now',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Trending Now',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                   _buildTrendingCarousel(context, provider.trendingMovies),
                   const Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Text('Now Playing',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Now Playing',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                   _buildNowPlayingGrid(context, provider.nowPlayingMovies),
                 ],
@@ -115,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     gradient: LinearGradient(
                       colors: [
                         Colors.black.withOpacity(0.8),
-                        Colors.transparent
+                        Colors.transparent,
                       ],
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
@@ -183,8 +226,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   const Icon(Icons.star, color: Colors.amber, size: 14),
                   const SizedBox(width: 4),
-                  Text(movie.voteAverage?.toStringAsFixed(1) ?? 'N/A',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  Text(
+                    movie.voteAverage?.toStringAsFixed(1) ?? 'N/A',
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                 ],
               ),
             ],
